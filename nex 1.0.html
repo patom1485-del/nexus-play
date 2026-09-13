@@ -1,0 +1,2182 @@
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover,
+      user-scalable=no">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NEXUS">
+
+<title>NEXUS // PLAY</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+}
+
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:#030508;
+    color:white;
+}
+
+body{
+    padding-top:env(safe-area-inset-top);
+    padding-bottom:env(safe-area-inset-bottom);
+}
+
+/* =========================
+   FONDO
+========================= */
+
+#background{
+    position:fixed;
+    inset:0;
+    z-index:-5;
+    background:
+        radial-gradient(circle at 20% 20%,rgba(55,100,255,.22),transparent 35%),
+        radial-gradient(circle at 80% 70%,rgba(0,190,255,.12),transparent 35%),
+        linear-gradient(135deg,#02030a,#07101c 50%,#020306);
+    transition:background 1s;
+}
+
+#grid{
+    position:fixed;
+    inset:-100px;
+    z-index:-4;
+    opacity:.22;
+    background-image:
+        linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+    background-size:55px 55px;
+    transform:perspective(500px) rotateX(60deg) translateY(100px);
+    animation:gridMove 18s linear infinite;
+}
+
+@keyframes gridMove{
+    from{transform:perspective(500px) rotateX(60deg) translateY(0)}
+    to{transform:perspective(500px) rotateX(60deg) translateY(55px)}
+}
+
+#particles{
+    position:fixed;
+    inset:0;
+    z-index:-3;
+    overflow:hidden;
+}
+
+.particle{
+    position:absolute;
+    width:3px;
+    height:3px;
+    border-radius:50%;
+    background:#fff;
+    opacity:.4;
+    animation:float linear infinite;
+}
+
+@keyframes float{
+    from{
+        transform:translateY(110vh) translateX(0);
+        opacity:0;
+    }
+    15%{opacity:.5}
+    85%{opacity:.5}
+    to{
+        transform:translateY(-20vh) translateX(80px);
+        opacity:0;
+    }
+}
+
+/* =========================
+   APP
+========================= */
+
+#app{
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+}
+
+/* =========================
+   TOP BAR
+========================= */
+
+.topbar{
+    height:82px;
+    padding:12px 22px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:linear-gradient(
+        to bottom,
+        rgba(0,0,0,.55),
+        rgba(0,0,0,0)
+    );
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.nexus-logo{
+    width:38px;
+    height:38px;
+    border:2px solid rgba(255,255,255,.75);
+    border-radius:50%;
+    display:grid;
+    place-items:center;
+    font-weight:900;
+    font-size:17px;
+    box-shadow:0 0 20px rgba(70,130,255,.35);
+}
+
+.brand-text{
+    font-size:14px;
+    font-weight:800;
+    letter-spacing:4px;
+}
+
+.status{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:12px;
+    opacity:.85;
+}
+
+.battery{
+    width:24px;
+    height:12px;
+    border:1px solid white;
+    border-radius:3px;
+    padding:1px;
+}
+
+.battery-level{
+    height:100%;
+    width:78%;
+    background:white;
+    border-radius:1px;
+}
+
+/* =========================
+   MAIN
+========================= */
+
+main{
+    flex:1;
+    min-height:0;
+    overflow:hidden;
+    position:relative;
+}
+
+.page{
+    position:absolute;
+    inset:0;
+    padding:15px 22px 100px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    opacity:0;
+    pointer-events:none;
+    transform:translateX(35px);
+    transition:.35s ease;
+}
+
+.page.active{
+    opacity:1;
+    pointer-events:auto;
+    transform:translateX(0);
+}
+
+.hero{
+    max-width:1000px;
+    margin:0 auto;
+    padding:25px 0 15px;
+}
+
+.greeting{
+    font-size:14px;
+    opacity:.65;
+    margin-bottom:6px;
+}
+
+.hero h1{
+    margin:0;
+    font-size:clamp(30px,7vw,58px);
+    letter-spacing:-2px;
+}
+
+.hero p{
+    opacity:.55;
+    margin-top:8px;
+}
+
+/* =========================
+   CARDS
+========================= */
+
+.cards{
+    display:flex;
+    gap:18px;
+    overflow-x:auto;
+    padding:15px 2px 28px;
+    scroll-snap-type:x mandatory;
+}
+
+.cards::-webkit-scrollbar{
+    display:none;
+}
+
+.card{
+    min-width:min(76vw,360px);
+    height:190px;
+    border-radius:22px;
+    position:relative;
+    overflow:hidden;
+    cursor:pointer;
+    scroll-snap-align:start;
+    background:
+        linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.025));
+    border:1px solid rgba(255,255,255,.13);
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.3),
+        inset 0 1px rgba(255,255,255,.1);
+    transition:.25s;
+}
+
+.card:active{
+    transform:scale(.96);
+}
+
+.card::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+        radial-gradient(circle at 75% 20%,rgba(80,130,255,.4),transparent 35%),
+        linear-gradient(135deg,transparent,rgba(0,0,0,.6));
+}
+
+.card-content{
+    position:absolute;
+    inset:0;
+    padding:22px;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+}
+
+.card-icon{
+    font-size:48px;
+    position:absolute;
+    top:20px;
+    right:22px;
+    filter:drop-shadow(0 8px 15px rgba(0,0,0,.4));
+}
+
+.card-title{
+    font-size:23px;
+    font-weight:800;
+}
+
+.card-sub{
+    font-size:12px;
+    opacity:.55;
+    margin-top:5px;
+}
+
+.section-title{
+    font-size:13px;
+    letter-spacing:2px;
+    opacity:.55;
+    margin:12px 0;
+}
+
+/* =========================
+   QUICK MENU
+========================= */
+
+.quick{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    max-width:1000px;
+    margin:auto;
+}
+
+.quick-btn{
+    min-height:76px;
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:17px;
+    background:rgba(255,255,255,.045);
+    color:white;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.quick-btn:active{
+    transform:scale(.93);
+    background:rgba(255,255,255,.1);
+}
+
+.quick-icon{
+    font-size:23px;
+}
+
+.quick-label{
+    font-size:10px;
+    opacity:.65;
+}
+
+/* =========================
+   BOTTOM NAV
+========================= */
+
+.bottom{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    height:76px;
+    padding-bottom:env(safe-area-inset-bottom);
+    background:rgba(5,7,12,.78);
+    backdrop-filter:blur(22px);
+    -webkit-backdrop-filter:blur(22px);
+    border-top:1px solid rgba(255,255,255,.08);
+    display:flex;
+    justify-content:center;
+    z-index:20;
+}
+
+.nav{
+    width:min(600px,100%);
+    display:flex;
+    justify-content:space-around;
+}
+
+.nav button{
+    width:25%;
+    border:0;
+    background:none;
+    color:white;
+    opacity:.45;
+    font-size:11px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.nav button.active{
+    opacity:1;
+}
+
+.nav-icon{
+    display:block;
+    font-size:23px;
+    margin-bottom:3px;
+}
+
+/* =========================
+   LIBRARY
+========================= */
+
+.library-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:14px;
+    max-width:900px;
+    margin:auto;
+}
+
+.app-card{
+    min-height:145px;
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:20px;
+    padding:18px;
+    background:rgba(255,255,255,.045);
+    cursor:pointer;
+    transition:.2s;
+    position:relative;
+    overflow:hidden;
+}
+
+.app-card:active{
+    transform:scale(.96);
+}
+
+.app-icon{
+    font-size:45px;
+}
+
+.app-name{
+    margin-top:12px;
+    font-weight:750;
+}
+
+.app-type{
+    font-size:11px;
+    opacity:.45;
+    margin-top:4px;
+}
+
+.fav{
+    position:absolute;
+    top:14px;
+    right:14px;
+    opacity:.5;
+}
+
+/* =========================
+   SETTINGS
+========================= */
+
+.settings{
+    max-width:850px;
+    margin:auto;
+}
+
+.setting-group{
+    margin-bottom:22px;
+}
+
+.setting-title{
+    font-size:11px;
+    letter-spacing:2px;
+    opacity:.4;
+    margin:0 0 8px 8px;
+}
+
+.setting{
+    min-height:57px;
+    width:100%;
+    border:1px solid rgba(255,255,255,.08);
+    background:rgba(255,255,255,.045);
+    color:white;
+    padding:13px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    cursor:pointer;
+}
+
+.setting:first-of-type{
+    border-radius:16px 16px 0 0;
+}
+
+.setting:last-of-type{
+    border-radius:0 0 16px 16px;
+}
+
+.setting:only-of-type{
+    border-radius:16px;
+}
+
+.setting-left{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.setting-icon{
+    width:32px;
+    text-align:center;
+    font-size:20px;
+}
+
+.setting-desc{
+    font-size:13px;
+}
+
+.setting-small{
+    font-size:10px;
+    opacity:.4;
+    margin-top:3px;
+}
+
+.arrow{
+    opacity:.35;
+}
+
+/* =========================
+   TOGGLE
+========================= */
+
+.toggle{
+    width:43px;
+    height:25px;
+    border-radius:20px;
+    background:#30343b;
+    padding:3px;
+    transition:.25s;
+}
+
+.toggle::after{
+    content:"";
+    display:block;
+    width:19px;
+    height:19px;
+    border-radius:50%;
+    background:white;
+    transition:.25s;
+}
+
+.toggle.on{
+    background:#367cff;
+}
+
+.toggle.on::after{
+    transform:translateX(18px);
+}
+
+/* =========================
+   PROFILE
+========================= */
+
+.profile{
+    max-width:700px;
+    margin:auto;
+    text-align:center;
+}
+
+.avatar{
+    width:110px;
+    height:110px;
+    margin:15px auto;
+    border-radius:50%;
+    display:grid;
+    place-items:center;
+    font-size:55px;
+    background:
+        radial-gradient(circle at 30% 20%,#687cff,#151a3d);
+    border:2px solid rgba(255,255,255,.18);
+    box-shadow:0 15px 50px rgba(50,100,255,.25);
+}
+
+.profile-name{
+    font-size:28px;
+    font-weight:800;
+}
+
+.profile-sub{
+    opacity:.45;
+    font-size:12px;
+}
+
+.profile-buttons{
+    display:grid;
+    gap:10px;
+    margin-top:30px;
+}
+
+.big-btn{
+    border:1px solid rgba(255,255,255,.1);
+    background:rgba(255,255,255,.05);
+    color:white;
+    padding:17px;
+    border-radius:15px;
+    font-size:14px;
+    cursor:pointer;
+}
+
+/* =========================
+   GAME MODE
+========================= */
+
+.game-mode{
+    max-width:800px;
+    margin:auto;
+}
+
+.game-status{
+    border-radius:25px;
+    padding:30px;
+    background:
+        radial-gradient(circle at 80% 10%,rgba(0,255,180,.15),transparent 35%),
+        rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.1);
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.game-status-icon{
+    font-size:55px;
+}
+
+.game-status h2{
+    margin:10px 0 5px;
+}
+
+.game-status p{
+    opacity:.45;
+    font-size:12px;
+}
+
+.game-buttons{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+}
+
+.game-button{
+    border:1px solid rgba(255,255,255,.09);
+    border-radius:18px;
+    background:rgba(255,255,255,.045);
+    color:white;
+    padding:22px;
+    text-align:left;
+    cursor:pointer;
+}
+
+.game-button:active{
+    transform:scale(.97);
+}
+
+.game-button strong{
+    display:block;
+    margin-bottom:6px;
+}
+
+.game-button span{
+    font-size:11px;
+    opacity:.4;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.7);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    z-index:100;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:25px;
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modal-box{
+    width:min(430px,100%);
+    background:#0b0f17;
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:25px;
+    padding:25px;
+    box-shadow:0 30px 100px rgba(0,0,0,.6);
+    animation:modalIn .25s ease;
+}
+
+@keyframes modalIn{
+    from{
+        transform:scale(.9);
+        opacity:0;
+    }
+    to{
+        transform:scale(1);
+        opacity:1;
+    }
+}
+
+.modal-title{
+    font-size:21px;
+    font-weight:800;
+    margin-bottom:8px;
+}
+
+.modal-text{
+    opacity:.45;
+    font-size:12px;
+    margin-bottom:20px;
+}
+
+.modal-input{
+    width:100%;
+    border:1px solid rgba(255,255,255,.12);
+    background:#05070b;
+    color:white;
+    border-radius:12px;
+    padding:15px;
+    outline:none;
+    font-size:18px;
+}
+
+.modal-actions{
+    display:flex;
+    gap:10px;
+    margin-top:15px;
+}
+
+.modal-actions button{
+    flex:1;
+    padding:13px;
+    border:0;
+    border-radius:12px;
+    cursor:pointer;
+    color:white;
+    background:#202631;
+}
+
+.modal-actions button.primary{
+    background:#386cff;
+}
+
+/* =========================
+   TOAST
+========================= */
+
+#toast{
+    position:fixed;
+    left:50%;
+    bottom:95px;
+    transform:translateX(-50%) translateY(20px);
+    background:rgba(15,18,25,.92);
+    border:1px solid rgba(255,255,255,.12);
+    padding:12px 18px;
+    border-radius:14px;
+    font-size:12px;
+    opacity:0;
+    pointer-events:none;
+    transition:.3s;
+    z-index:200;
+    white-space:nowrap;
+}
+
+#toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(min-width:700px){
+    .library-grid{
+        grid-template-columns:repeat(4,1fr);
+    }
+
+    .quick{
+        grid-template-columns:repeat(4,160px);
+    }
+}
+
+@media(max-width:380px){
+    .quick{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .card{
+        min-width:82vw;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="background"></div>
+<div id="grid"></div>
+<div id="particles"></div>
+
+<div id="app">
+
+<header class="topbar">
+
+    <div class="brand">
+        <div class="nexus-logo">N</div>
+        <div class="brand-text">NEXUS</div>
+    </div>
+
+    <div class="status">
+        <span id="time">--:--</span>
+        <span>⌁</span>
+        <div class="battery">
+            <div class="battery-level" id="batteryLevel"></div>
+        </div>
+    </div>
+
+</header>
+
+
+<main>
+
+<!-- ================= HOME ================= -->
+
+<section class="page active" id="home">
+
+    <div class="hero">
+        <div class="greeting" id="greeting">BUENAS NOCHES</div>
+        <h1>NEXUS // PLAY</h1>
+        <p>Tu espacio gaming. Tu teléfono. Tu experiencia.</p>
+    </div>
+
+    <div class="cards">
+
+        <div class="card" onclick="openApp('🎮','Gaming Hub')">
+            <div class="card-icon">🎮</div>
+            <div class="card-content">
+                <div class="card-title">GAMING HUB</div>
+                <div class="card-sub">CENTRO DE JUEGOS</div>
+            </div>
+        </div>
+
+        <div class="card" onclick="navigate('library')">
+            <div class="card-icon">▣</div>
+            <div class="card-content">
+                <div class="card-title">BIBLIOTECA</div>
+                <div class="card-sub">TODOS TUS JUEGOS Y APPS</div>
+            </div>
+        </div>
+
+        <div class="card" onclick="navigate('gaming')">
+            <div class="card-icon">⚡</div>
+            <div class="card-content">
+                <div class="card-title">GAME MODE</div>
+                <div class="card-sub">PREPARA EL SISTEMA PARA JUGAR</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="section-title">ACCESO RÁPIDO</div>
+
+    <div class="quick">
+
+        <button class="quick-btn" onclick="navigate('library')">
+            <span class="quick-icon">🎮</span>
+            <span class="quick-label">JUEGOS</span>
+        </button>
+
+        <button class="quick-btn" onclick="navigate('profile')">
+            <span class="quick-icon">👤</span>
+            <span class="quick-label">PERFIL</span>
+        </button>
+
+        <button class="quick-btn" onclick="navigate('gaming')">
+            <span class="quick-icon">⚡</span>
+            <span class="quick-label">GAME MODE</span>
+        </button>
+
+        <button class="quick-btn" onclick="navigate('settings')">
+            <span class="quick-icon">⚙️</span>
+            <span class="quick-label">AJUSTES</span>
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- ================= LIBRARY ================= -->
+
+<section class="page" id="library">
+
+    <div class="hero">
+        <div class="greeting">NEXUS // LIBRARY</div>
+        <h1>Biblioteca</h1>
+        <p>Tus juegos y aplicaciones.</p>
+    </div>
+
+    <div class="library-grid">
+
+        <div class="app-card" onclick="openApp('⛏️','Minecraft')">
+            <span class="fav">★</span>
+            <div class="app-icon">⛏️</div>
+            <div class="app-name">Minecraft</div>
+            <div class="app-type">JUEGO</div>
+        </div>
+
+        <div class="app-card" onclick="openApp('🎮','Roblox')">
+            <span class="fav">★</span>
+            <div class="app-icon">🎮</div>
+            <div class="app-name">Roblox</div>
+            <div class="app-type">JUEGO</div>
+        </div>
+
+        <div class="app-card" onclick="openApp('⚽','Football')">
+            <div class="app-icon">⚽</div>
+            <div class="app-name">Football</div>
+            <div class="app-type">JUEGO</div>
+        </div>
+
+        <div class="app-card" onclick="openApp('💀','DOOM')">
+            <div class="app-icon">💀</div>
+            <div class="app-name">DOOM</div>
+            <div class="app-type">JUEGO</div>
+        </div>
+
+        <div class="app-card" onclick="openApp('▶️','YouTube')">
+            <div class="app-icon">▶️</div>
+            <div class="app-name">YouTube</div>
+            <div class="app-type">APP</div>
+        </div>
+
+        <div class="app-card" onclick="openApp('🎵','Music')">
+            <div class="app-icon">🎵</div>
+            <div class="app-name">Music</div>
+            <div class="app-type">APP</div>
+        </div>
+
+        <div class="app-card" onclick="openApp('🌐','Browser')">
+            <div class="app-icon">🌐</div>
+            <div class="app-name">Browser</div>
+            <div class="app-type">APP</div>
+        </div>
+
+        <div class="app-card" onclick="openApp('📷','Camera')">
+            <div class="app-icon">📷</div>
+            <div class="app-name">Camera</div>
+            <div class="app-type">APP</div>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= GAMING ================= -->
+
+<section class="page" id="gaming">
+
+    <div class="hero">
+        <div class="greeting">NEXUS // PERFORMANCE</div>
+        <h1>Game Mode</h1>
+        <p>Configura tu experiencia de juego.</p>
+    </div>
+
+    <div class="game-mode">
+
+        <div class="game-status">
+
+            <div class="game-status-icon">⚡</div>
+
+            <h2 id="gameStatus">
+                GAME MODE DESACTIVADO
+            </h2>
+
+            <p id="gameStatusText">
+                Activa el modo gaming para preparar la interfaz.
+            </p>
+
+            <button
+                class="big-btn"
+                onclick="toggleGameMode()"
+                style="margin-top:20px;width:100%;"
+                id="gameToggle">
+                ACTIVAR GAME MODE
+            </button>
+
+        </div>
+
+        <div class="game-buttons">
+
+            <button class="game-button" onclick="showToast('🎧 Audio gaming seleccionado')">
+                <strong>🎧 Audio</strong>
+                <span>Perfil de sonido gaming</span>
+            </button>
+
+            <button class="game-button" onclick="showToast('📳 Respuesta háptica activada')">
+                <strong>📳 Haptics</strong>
+                <span>Respuesta táctil</span>
+            </button>
+
+            <button class="game-button" onclick="showToast('⚡ Interfaz optimizada')">
+                <strong>⚡ Rendimiento</strong>
+                <span>Prioridad a fluidez visual</span>
+            </button>
+
+            <button class="game-button" onclick="showToast('🎮 Controles preparados')">
+                <strong>🎮 Controles</strong>
+                <span>Configuración de juego</span>
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= PROFILE ================= -->
+
+<section class="page" id="profile">
+
+    <div class="hero">
+        <div class="greeting">NEXUS // USER</div>
+        <h1>Perfil</h1>
+        <p>Tu identidad dentro de NEXUS.</p>
+    </div>
+
+    <div class="profile">
+
+        <div class="avatar">👾</div>
+
+        <div class="profile-name" id="profileName">
+            FER
+        </div>
+
+        <div class="profile-sub">
+            PERFIL PRINCIPAL
+        </div>
+
+        <div class="profile-buttons">
+
+            <button class="big-btn" onclick="requestPin()">
+                🔒 Cambiar PIN
+            </button>
+
+            <button class="big-btn" onclick="changeName()">
+                ✏️ Cambiar nombre
+            </button>
+
+            <button class="big-btn" onclick="showToast('👤 Perfil invitado disponible próximamente')">
+                ➕ Crear otro perfil
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= SETTINGS ================= -->
+
+<section class="page" id="settings">
+
+    <div class="hero">
+        <div class="greeting">NEXUS // SYSTEM</div>
+        <h1>Ajustes</h1>
+        <p>Personaliza tu experiencia.</p>
+    </div>
+
+    <div class="settings">
+
+        <div class="setting-group">
+
+            <div class="setting-title">
+                PERSONALIZACIÓN
+            </div>
+
+            <div class="setting" onclick="changeBackground()">
+                <div class="setting-left">
+                    <div class="setting-icon">🖼️</div>
+                    <div>
+                        <div class="setting-desc">Fondo</div>
+                        <div class="setting-small">
+                            Cambiar apariencia del launcher
+                        </div>
+                    </div>
+                </div>
+                <div class="arrow">›</div>
+            </div>
+
+            <div class="setting" onclick="toggleParticles()">
+                <div class="setting-left">
+                    <div class="setting-icon">✨</div>
+                    <div>
+                        <div class="setting-desc">Partículas</div>
+                        <div class="setting-small">
+                            Efectos ambientales
+                        </div>
+                    </div>
+                </div>
+
+                <div class="toggle on" id="particleToggle"></div>
+            </div>
+
+            <div class="setting" onclick="toggleAnimations()">
+                <div class="setting-left">
+                    <div class="setting-icon">💫</div>
+                    <div>
+                        <div class="setting-desc">Animaciones</div>
+                        <div class="setting-small">
+                            Transiciones del sistema
+                        </div>
+                    </div>
+                </div>
+
+                <div class="toggle on" id="animationToggle"></div>
+            </div>
+
+        </div>
+
+
+        <div class="setting-group">
+
+            <div class="setting-title">
+                AUDIO
+            </div>
+
+            <div class="setting" onclick="toggleSound()">
+
+                <div class="setting-left">
+
+                    <div class="setting-icon">🔊</div>
+
+                    <div>
+                        <div class="setting-desc">
+                            Sonidos de interfaz
+                        </div>
+
+                        <div class="setting-small">
+                            Efectos propios de NEXUS
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="toggle on" id="soundToggle"></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="setting-group">
+
+            <div class="setting-title">
+                SEGURIDAD
+            </div>
+
+            <div class="setting" onclick="requestPin()">
+
+                <div class="setting-left">
+
+                    <div class="setting-icon">🔐</div>
+
+                    <div>
+                        <div class="setting-desc">
+                            PIN del perfil
+                        </div>
+
+                        <div class="setting-small">
+                            Protección del perfil
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="arrow">›</div>
+
+            </div>
+
+        </div>
+
+
+        <div class="setting-group">
+
+            <div class="setting-title">
+                SISTEMA
+            </div>
+
+            <div class="setting">
+
+                <div class="setting-left">
+
+                    <div class="setting-icon">📱</div>
+
+                    <div>
+
+                        <div class="setting-desc">
+                            Dispositivo
+                        </div>
+
+                        <div class="setting-small" id="deviceInfo">
+                            Detectando...
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="arrow">›</div>
+
+            </div>
+
+            <div class="setting" onclick="showAbout()">
+
+                <div class="setting-left">
+
+                    <div class="setting-icon">ℹ️</div>
+
+                    <div>
+
+                        <div class="setting-desc">
+                            Acerca de NEXUS
+                        </div>
+
+                        <div class="setting-small">
+                            NEXUS // PLAY 1.0
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="arrow">›</div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<!-- ================= NAV ================= -->
+
+<nav class="bottom">
+
+    <div class="nav">
+
+        <button
+            id="nav-home"
+            class="active"
+            onclick="navigate('home')">
+
+            <span class="nav-icon">⌂</span>
+            Inicio
+
+        </button>
+
+        <button
+            id="nav-library"
+            onclick="navigate('library')">
+
+            <span class="nav-icon">▣</span>
+            Biblioteca
+
+        </button>
+
+        <button
+            id="nav-gaming"
+            onclick="navigate('gaming')">
+
+            <span class="nav-icon">⚡</span>
+            Gaming
+
+        </button>
+
+        <button
+            id="nav-settings"
+            onclick="navigate('settings')">
+
+            <span class="nav-icon">⚙</span>
+            Ajustes
+
+        </button>
+
+    </div>
+
+</nav>
+
+</div>
+
+
+<!-- ================= MODAL ================= -->
+
+<div class="modal" id="modal">
+
+    <div class="modal-box">
+
+        <div class="modal-title" id="modalTitle">
+            NEXUS
+        </div>
+
+        <div class="modal-text" id="modalText">
+            Acción
+        </div>
+
+        <input
+            class="modal-input"
+            id="modalInput"
+            type="text"
+            autocomplete="off"
+            placeholder="Escribe aquí">
+
+        <div class="modal-actions">
+
+            <button onclick="closeModal()">
+                CANCELAR
+            </button>
+
+            <button class="primary" onclick="modalConfirm()">
+                CONFIRMAR
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div id="toast">
+    NEXUS
+</div>
+
+
+<script>
+
+/* =====================================================
+   NEXUS // PLAY 1.0
+===================================================== */
+
+let soundEnabled = true;
+let particlesEnabled = true;
+let animationsEnabled = true;
+let gameMode = false;
+
+let currentModalAction = null;
+
+let profilePin =
+    localStorage.getItem("nexusPin") || "1234";
+
+let profileName =
+    localStorage.getItem("nexusName") || "FER";
+
+
+/* =====================================================
+   SONIDOS
+===================================================== */
+
+let audioContext = null;
+
+function initAudio(){
+
+    if(!soundEnabled) return;
+
+    if(!audioContext){
+
+        audioContext =
+            new (window.AudioContext ||
+            window.webkitAudioContext)();
+
+    }
+
+    if(audioContext.state === "suspended"){
+        audioContext.resume();
+    }
+}
+
+function playSound(type="click"){
+
+    if(!soundEnabled) return;
+
+    initAudio();
+
+    if(!audioContext) return;
+
+    const osc =
+        audioContext.createOscillator();
+
+    const gain =
+        audioContext.createGain();
+
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+
+    let frequency = 500;
+    let duration = .06;
+
+    if(type==="select"){
+        frequency = 650;
+        duration = .08;
+    }
+
+    if(type==="open"){
+        frequency = 400;
+        duration = .12;
+    }
+
+    if(type==="error"){
+        frequency = 180;
+        duration = .15;
+    }
+
+    osc.frequency.value = frequency;
+    osc.type = "sine";
+
+    gain.gain.setValueAtTime(
+        .045,
+        audioContext.currentTime
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+        .001,
+        audioContext.currentTime + duration
+    );
+
+    osc.start();
+
+    osc.stop(
+        audioContext.currentTime + duration
+    );
+}
+
+
+/* =====================================================
+   NAVEGACIÓN
+===================================================== */
+
+function navigate(page){
+
+    playSound("select");
+
+    document
+        .querySelectorAll(".page")
+        .forEach(p => p.classList.remove("active"));
+
+    const target =
+        document.getElementById(page);
+
+    if(target){
+        target.classList.add("active");
+    }
+
+    document
+        .querySelectorAll(".nav button")
+        .forEach(b => b.classList.remove("active"));
+
+    const nav =
+        document.getElementById("nav-"+page);
+
+    if(nav){
+        nav.classList.add("active");
+    }
+}
+
+
+/* =====================================================
+   APP
+===================================================== */
+
+function openApp(icon,name){
+
+    playSound("open");
+
+    showToast(
+        icon + "  Abriendo " + name + "..."
+    );
+
+    setTimeout(() => {
+
+        showToast(
+            "NEXUS: " +
+            name +
+            " seleccionado"
+        );
+
+    },900);
+}
+
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+let toastTimer;
+
+function showToast(message){
+
+    const toast =
+        document.getElementById("toast");
+
+    toast.textContent = message;
+
+    toast.classList.add("show");
+
+    clearTimeout(toastTimer);
+
+    toastTimer =
+        setTimeout(() => {
+
+            toast.classList.remove("show");
+
+        },2200);
+}
+
+
+/* =====================================================
+   GAME MODE
+===================================================== */
+
+function toggleGameMode(){
+
+    gameMode = !gameMode;
+
+    const status =
+        document.getElementById("gameStatus");
+
+    const text =
+        document.getElementById("gameStatusText");
+
+    const button =
+        document.getElementById("gameToggle");
+
+    if(gameMode){
+
+        playSound("open");
+
+        status.textContent =
+            "GAME MODE ACTIVADO";
+
+        text.textContent =
+            "NEXUS está preparado para jugar.";
+
+        button.textContent =
+            "DESACTIVAR GAME MODE";
+
+        showToast("⚡ GAME MODE ACTIVADO");
+
+        document.body.style.background =
+            "#020907";
+
+    }else{
+
+        playSound("click");
+
+        status.textContent =
+            "GAME MODE DESACTIVADO";
+
+        text.textContent =
+            "Activa el modo gaming para preparar la interfaz.";
+
+        button.textContent =
+            "ACTIVAR GAME MODE";
+
+        showToast("GAME MODE DESACTIVADO");
+
+    }
+}
+
+
+/* =====================================================
+   FONDOS
+===================================================== */
+
+let backgroundIndex = 0;
+
+const backgrounds = [
+
+    `
+    radial-gradient(circle at 20% 20%,
+    rgba(55,100,255,.25),
+    transparent 35%),
+    radial-gradient(circle at 80% 70%,
+    rgba(0,190,255,.12),
+    transparent 35%),
+    linear-gradient(135deg,#02030a,#07101c 50%,#020306)
+    `,
+
+    `
+    radial-gradient(circle at 80% 20%,
+    rgba(170,50,255,.25),
+    transparent 35%),
+    radial-gradient(circle at 10% 80%,
+    rgba(50,100,255,.2),
+    transparent 35%),
+    linear-gradient(135deg,#08020d,#15071e,#030207)
+    `,
+
+    `
+    radial-gradient(circle at 50% 50%,
+    rgba(0,255,180,.12),
+    transparent 40%),
+    linear-gradient(135deg,#010706,#031514,#010303)
+    `,
+
+    `
+    radial-gradient(circle at 50% 0%,
+    rgba(255,255,255,.06),
+    transparent 35%),
+    linear-gradient(135deg,#020202,#101010,#030303)
+    `
+
+];
+
+function changeBackground(){
+
+    backgroundIndex++;
+
+    if(backgroundIndex >= backgrounds.length){
+        backgroundIndex = 0;
+    }
+
+    document.getElementById("background")
+        .style.background =
+        backgrounds[backgroundIndex];
+
+    playSound("select");
+
+    showToast(
+        "🖼️ Fondo " +
+        (backgroundIndex + 1) +
+        " seleccionado"
+    );
+
+    localStorage.setItem(
+        "nexusBackground",
+        backgroundIndex
+    );
+}
+
+
+/* =====================================================
+   PARTICULAS
+===================================================== */
+
+function createParticles(){
+
+    const container =
+        document.getElementById("particles");
+
+    container.innerHTML = "";
+
+    for(let i=0;i<45;i++){
+
+        const p =
+            document.createElement("div");
+
+        p.className = "particle";
+
+        p.style.left =
+            Math.random()*100 + "%";
+
+        p.style.animationDuration =
+            (8 + Math.random()*16) + "s";
+
+        p.style.animationDelay =
+            (-Math.random()*20) + "s";
+
+        p.style.opacity =
+            (.1 + Math.random()*.5);
+
+        container.appendChild(p);
+    }
+}
+
+createParticles();
+
+
+function toggleParticles(){
+
+    particlesEnabled =
+        !particlesEnabled;
+
+    const container =
+        document.getElementById("particles");
+
+    const toggle =
+        document.getElementById("particleToggle");
+
+    container.style.display =
+        particlesEnabled ? "block" : "none";
+
+    toggle.classList.toggle(
+        "on",
+        particlesEnabled
+    );
+
+    playSound("click");
+
+    showToast(
+        particlesEnabled
+        ? "✨ Partículas activadas"
+        : "Partículas desactivadas"
+    );
+}
+
+
+/* =====================================================
+   ANIMACIONES
+===================================================== */
+
+function toggleAnimations(){
+
+    animationsEnabled =
+        !animationsEnabled;
+
+    const toggle =
+        document.getElementById("animationToggle");
+
+    toggle.classList.toggle(
+        "on",
+        animationsEnabled
+    );
+
+    if(animationsEnabled){
+
+        document.documentElement.style
+            .setProperty(
+                "--animation-speed",
+                "1"
+            );
+
+        showToast(
+            "💫 Animaciones activadas"
+        );
+
+    }else{
+
+        const style =
+            document.createElement("style");
+
+        style.id = "noAnimations";
+
+        style.textContent = `
+            *{
+                animation-duration:0s !important;
+                transition:none !important;
+            }
+        `;
+
+        document.head.appendChild(style);
+
+        showToast(
+            "Animaciones desactivadas"
+        );
+    }
+}
+
+
+/* =====================================================
+   SONIDO
+===================================================== */
+
+function toggleSound(){
+
+    soundEnabled =
+        !soundEnabled;
+
+    const toggle =
+        document.getElementById("soundToggle");
+
+    toggle.classList.toggle(
+        "on",
+        soundEnabled
+    );
+
+    if(soundEnabled){
+
+        playSound("select");
+
+        showToast(
+            "🔊 Sonidos activados"
+        );
+
+    }else{
+
+        showToast(
+            "🔇 Sonidos desactivados"
+        );
+    }
+}
+
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+function showModal(title,text,placeholder,action){
+
+    document.getElementById("modalTitle")
+        .textContent = title;
+
+    document.getElementById("modalText")
+        .textContent = text;
+
+    const input =
+        document.getElementById("modalInput");
+
+    input.value = "";
+
+    input.placeholder = placeholder;
+
+    currentModalAction = action;
+
+    document
+        .getElementById("modal")
+        .classList.add("show");
+
+    setTimeout(() => input.focus(),100);
+}
+
+function closeModal(){
+
+    document
+        .getElementById("modal")
+        .classList.remove("show");
+
+    currentModalAction = null;
+}
+
+function modalConfirm(){
+
+    const value =
+        document.getElementById("modalInput")
+        .value.trim();
+
+    if(currentModalAction){
+        currentModalAction(value);
+    }
+}
+
+
+/* =====================================================
+   PIN
+===================================================== */
+
+function requestPin(){
+
+    showModal(
+        "🔐 PIN DEL PERFIL",
+        "Introduce el PIN actual.",
+        "PIN",
+        value => {
+
+            if(value === profilePin){
+
+                closeModal();
+
+                setTimeout(() => {
+
+                    showModal(
+                        "🔑 NUEVO PIN",
+                        "Introduce un nuevo PIN de 4 números.",
+                        "1234",
+                        newPin => {
+
+                            if(
+                                /^\d{4}$/.test(newPin)
+                            ){
+
+                                profilePin =
+                                    newPin;
+
+                                localStorage.setItem(
+                                    "nexusPin",
+                                    profilePin
+                                );
+
+                                closeModal();
+
+                                showToast(
+                                    "🔐 PIN actualizado"
+                                );
+
+                            }else{
+
+                                playSound("error");
+
+                                showToast(
+                                    "❌ El PIN debe tener 4 números"
+                                );
+                            }
+
+                        }
+                    );
+
+                },150);
+
+            }else{
+
+                playSound("error");
+
+                showToast(
+                    "❌ PIN incorrecto"
+                );
+            }
+
+        }
+    );
+}
+
+
+/* =====================================================
+   NOMBRE
+===================================================== */
+
+function changeName(){
+
+    showModal(
+        "👤 NOMBRE DEL PERFIL",
+        "Escribe el nombre que quieres usar.",
+        profileName,
+        value => {
+
+            if(value.length < 1){
+
+                showToast(
+                    "❌ Escribe un nombre"
+                );
+
+                return;
+            }
+
+            profileName = value;
+
+            localStorage.setItem(
+                "nexusName",
+                profileName
+            );
+
+            document.getElementById(
+                "profileName"
+            ).textContent =
+                profileName;
+
+            closeModal();
+
+            showToast(
+                "👤 Perfil actualizado"
+            );
+        }
+    );
+}
+
+
+/* =====================================================
+   INFORMACIÓN
+===================================================== */
+
+function showAbout(){
+
+    showToast(
+        "NEXUS // PLAY 1.0 — Sistema de interfaz gaming"
+    );
+}
+
+
+/* =====================================================
+   HORA
+===================================================== */
+
+function updateTime(){
+
+    const now = new Date();
+
+    const h =
+        String(now.getHours())
+        .padStart(2,"0");
+
+    const m =
+        String(now.getMinutes())
+        .padStart(2,"0");
+
+    document.getElementById(
+        "time"
+    ).textContent =
+        h + ":" + m;
+
+    const hour =
+        now.getHours();
+
+    let greeting =
+        "BUENAS NOCHES";
+
+    if(hour >= 6 && hour < 12){
+        greeting = "BUENOS DÍAS";
+    }
+
+    if(hour >= 12 && hour < 19){
+        greeting = "BUENAS TARDES";
+    }
+
+    document.getElementById(
+        "greeting"
+    ).textContent =
+        greeting + ", " +
+        profileName.toUpperCase();
+}
+
+setInterval(updateTime,1000);
+
+updateTime();
+
+
+/* =====================================================
+   BATERÍA
+===================================================== */
+
+if(
+    navigator.getBattery
+){
+
+    navigator.getBattery()
+    .then(battery => {
+
+        function updateBattery(){
+
+            const level =
+                Math.round(
+                    battery.level * 100
+                );
+
+            document.getElementById(
+                "batteryLevel"
+            ).style.width =
+                level + "%";
+        }
+
+        updateBattery();
+
+        battery.addEventListener(
+            "levelchange",
+            updateBattery
+        );
+    });
+}
+
+
+/* =====================================================
+   DISPOSITIVO
+===================================================== */
+
+function detectDevice(){
+
+    const ua =
+        navigator.userAgent;
+
+    let device =
+        "Dispositivo móvil";
+
+    if(/iPhone/i.test(ua)){
+        device =
+            "iPhone";
+    }
+
+    if(/iPad/i.test(ua)){
+        device =
+            "iPad";
+    }
+
+    document.getElementById(
+        "deviceInfo"
+    ).textContent =
+        device +
+        " • " +
+        window.innerWidth +
+        " × " +
+        window.innerHeight;
+}
+
+detectDevice();
+
+window.addEventListener(
+    "resize",
+    detectDevice
+);
+
+
+/* =====================================================
+   CARGAR DATOS
+===================================================== */
+
+const savedBackground =
+    localStorage.getItem(
+        "nexusBackground"
+    );
+
+if(savedBackground !== null){
+
+    backgroundIndex =
+        Number(savedBackground);
+
+    document.getElementById(
+        "background"
+    ).style.background =
+        backgrounds[backgroundIndex];
+}
+
+document.getElementById(
+    "profileName"
+).textContent =
+    profileName;
+
+
+/* =====================================================
+   TOUCH / SONIDO
+===================================================== */
+
+document.addEventListener(
+    "touchstart",
+    () => {
+        initAudio();
+    },
+    {once:true}
+);
+
+
+/* =====================================================
+   TECLADO PARA PC
+===================================================== */
+
+document.addEventListener(
+    "keydown",
+    e => {
+
+        if(e.key === "1"){
+            navigate("home");
+        }
+
+        if(e.key === "2"){
+            navigate("library");
+        }
+
+        if(e.key === "3"){
+            navigate("gaming");
+        }
+
+        if(e.key === "4"){
+            navigate("settings");
+        }
+
+        if(e.key === "Escape"){
+            closeModal();
+        }
+    }
+);
+
+
+/* =====================================================
+   INICIO
+===================================================== */
+
+showToast(
+    "NEXUS // PLAY iniciado"
+);
+
+</script>
+
+</body>
+</html>
